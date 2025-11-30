@@ -26,32 +26,67 @@ pandas
 scikit-learn
 numpy
 torch (with CUDA support for GPU acceleration)
+kagglehub (for automatic dataset download)
 ```
 
-Install dependencies:
+Install all dependencies:
 ```bash
-pip install pandas scikit-learn numpy torch
+pip install pandas scikit-learn numpy torch kagglehub
+```
+
+For GPU support, install PyTorch with CUDA:
+```bash
+# For CUDA 11.8
+pip install torch --index-url https://download.pytorch.org/whl/cu118
+
+# For CUDA 12.1
+pip install torch --index-url https://download.pytorch.org/whl/cu121
 ```
 
 ## 🚀 Getting Started
 
 ### 1. Dataset Setup
 
-Place your TMDB movie dataset CSV file at:
-```
-/mnt/c/Users/abhin/OneDrive/Desktop/Ironfleet/Archives/Content-Based Recommender system/archive/TMDB_movie_dataset_v11.csv
+#### Option A: Download from Kaggle (Recommended)
+
+Install kagglehub and download the dataset automatically:
+
+```bash
+pip install kagglehub
 ```
 
-Or modify the `CSV_FILE_PATH` variable in the code to point to your dataset location.
+Then run this Python script or add it to the beginning of your code:
+
+```python
+import kagglehub
+
+# Download latest version of TMDB dataset
+path = kagglehub.dataset_download("asaniczka/tmdb-movies-dataset-2023-930k-movies")
+print("Path to dataset files:", path)
+```
+
+**Dataset Information:**
+- **Source**: The Movie Database (TMDB)
+- **Size**: ~1,000,000 movies (930K+ movies)
+- **Year**: 2023 version
+- **Content**: Comprehensive movie metadata including titles, ratings, release dates, revenue, genres, cast, crew, and more
+
+#### Option B: Use Existing Dataset
+
+If you already have the dataset, update the `CSV_FILE_PATH` variable in the code:
+
+```python
+CSV_FILE_PATH = "path/to/your/TMDB_movie_dataset_v11.csv"
+```
 
 **Required CSV columns:**
 - `title`: Movie title
-- `overview`: Movie description
+- `overview`: Movie description/synopsis
 - `genres`: Movie genres
 - `release_date`: Release date
-- `original_language`: Language code
-- `vote_average`: Rating (0-10)
-- `vote_count`: Number of votes
+- `original_language`: Language code (ISO 639-1)
+- `vote_average`: Average rating (0-10 scale)
+- `vote_count`: Number of user votes
 
 ### 2. Run the System
 
@@ -62,15 +97,22 @@ python code.py
 ### 3. First Run
 
 On first execution, the system will:
-1. Load and process the dataset
-2. Filter for English-language movies
-3. Calculate weighted ratings
-4. Train the TF-IDF vectorizer (3000 features)
-5. Cache the model for future use
+1. Download the TMDB dataset (if using kagglehub) - ~500MB download
+2. Load and process ~1,000,000 movies
+3. Filter for English-language movies
+4. Calculate weighted ratings using IMDB formula
+5. Train the TF-IDF vectorizer (3000 features, bigrams)
+6. Create and cache the similarity model
 
 **Initial training time:**
-- CPU: ~30-60 seconds
-- GPU: ~10-20 seconds
+- CPU: ~1-2 minutes (for ~85K English movies after filtering)
+- GPU: ~30-45 seconds
+
+**Dataset Statistics:**
+- Total movies: ~1,000,000
+- English movies: ~85,000-100,000 (after filtering)
+- Features: Overview text + Genres
+- Vector dimensions: 3000 TF-IDF features
 
 ### 4. Subsequent Runs
 
@@ -133,12 +175,18 @@ Hybrid Score = (0.7 × Content Similarity) + (0.3 × Normalized Rating)
 
 ## 📊 Performance Metrics
 
-| Operation | GPU (CUDA) | CPU |
-|-----------|-----------|-----|
-| Initial Training | 10-20s | 30-60s |
-| Cached Load | 2-5s | 2-5s |
-| Similarity Calc | 0.1-0.3s | 2-5s |
-| Total Query | <1s | 3-7s |
+| Operation | GPU (CUDA) | CPU | Dataset Size |
+|-----------|-----------|-----|--------------|
+| Dataset Download | ~2-5 min | ~2-5 min | 500MB |
+| Initial Training | 30-45s | 1-2 min | ~85K movies |
+| Cached Load | 2-5s | 2-5s | - |
+| Similarity Calc | 0.1-0.3s | 2-5s | Per query |
+| Total Query | <1s | 3-7s | - |
+
+**System Requirements:**
+- RAM: 4GB minimum, 8GB recommended
+- Storage: 1GB for dataset + cache
+- GPU: 6GB VRAM recommended for full GPU acceleration
 
 ## 🎨 Example Output
 
@@ -192,6 +240,16 @@ batch_size = 2500       # Adjust based on VRAM
 
 ## 🐛 Troubleshooting
 
+### Dataset Download Issues
+```
+Error: Failed to download dataset
+```
+**Solutions:**
+- Ensure you have a Kaggle account
+- Configure Kaggle API credentials: https://github.com/Kaggle/kaggle-api#api-credentials
+- Check internet connection
+- Verify dataset availability: https://www.kaggle.com/datasets/asaniczka/tmdb-movies-dataset-2023-930k-movies
+
 ### GPU Not Detected
 ```
 ⚠️ CUDA not available, falling back to CPU
@@ -200,28 +258,45 @@ batch_size = 2500       # Adjust based on VRAM
 - Install CUDA toolkit: https://developer.nvidia.com/cuda-downloads
 - Reinstall PyTorch with CUDA: `pip install torch --index-url https://download.pytorch.org/whl/cu118`
 - Check GPU compatibility: `nvidia-smi`
+- Verify CUDA installation: `torch.cuda.is_available()` in Python
 
 ### Movie Not Found
 ```
 ❌ Result: 'movie_name' not found in the dataset.
 💡 Did you mean one of these?
 ```
-The system suggests close matches. Try:
-- Using partial names
-- Checking spelling
-- Including the year if multiple versions exist
+The system suggests close matches using fuzzy matching. Try:
+- Using partial names (e.g., "dark knight" instead of "The Dark Knight")
+- Checking spelling and punctuation
+- Including the year if multiple versions exist (handled automatically)
+- Searching for the original title if it's a foreign film
 
 ### Cache Mismatch
 ```
 ⚠ Cache doesn't match current data, retraining...
 ```
-This happens when the dataset changes. The system automatically retrains.
+This happens when:
+- Dataset file is updated
+- CSV structure changes
+- Manual cache corruption
+
+The system automatically retrains. Use `recache` command to force rebuild.
 
 ### Out of Memory (GPU)
-Reduce batch size:
+```
+RuntimeError: CUDA out of memory
+```
+Reduce batch size in the code:
 ```python
 batch_size = 1000  # Lower for GPUs with <6GB VRAM
+batch_size = 500   # For 4GB VRAM
 ```
+
+### Large Dataset Performance
+For the full 1M movie dataset, consider:
+- Increasing `min_df` parameter to filter rare words
+- Reducing `max_features` from 3000 to 2000
+- Using more aggressive filtering (higher vote count threshold)
 
 ## 📈 Future Enhancements
 

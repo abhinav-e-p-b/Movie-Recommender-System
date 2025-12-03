@@ -12,4 +12,7 @@ archive/TMDB_movie_dataset_v11.csv/
 *.pkl
 *.csv
 archive/
-__pycache__/
+node_modules/
+frontend/node_modules/
+.env
+.DS_Store

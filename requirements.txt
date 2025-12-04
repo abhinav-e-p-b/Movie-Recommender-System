@@ -1,0 +1,177 @@
+# ============================================================================
+# Movie Recommender System - Python Dependencies
+# ============================================================================
+# This file contains all Python packages required for the backend.
+# Install with: pip install -r requirements.txt
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Web Framework & Server
+# ----------------------------------------------------------------------------
+Flask==3.0.0                    # Lightweight web framework for API
+Werkzeug==3.0.1                 # WSGI utility library (Flask dependency)
+flask-cors==4.0.0               # Cross-Origin Resource Sharing support
+
+# ----------------------------------------------------------------------------
+# Data Processing & Analysis
+# ----------------------------------------------------------------------------
+pandas==2.1.4                   # Data manipulation and analysis
+numpy==1.26.2                   # Numerical computing library
+python-dateutil==2.8.2          # Extensions to datetime module
+
+# ----------------------------------------------------------------------------
+# Machine Learning & NLP
+# ----------------------------------------------------------------------------
+scikit-learn==1.3.2             # Machine learning algorithms and tools
+scipy==1.11.4                   # Scientific computing library
+
+# ----------------------------------------------------------------------------
+# GPU Acceleration (Optional - see instructions below)
+# ----------------------------------------------------------------------------
+# torch==2.1.2                  # PyTorch for GPU acceleration
+# torchvision==0.16.2           # PyTorch vision library
+# torchaudio==2.1.2             # PyTorch audio library
+
+# NOTE: For GPU support, install PyTorch separately with CUDA:
+# 
+# For CUDA 11.8:
+#   pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+#
+# For CUDA 12.1:
+#   pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu121
+#
+# For CPU only (no GPU):
+#   pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cpu
+#
+# Check GPU availability with: python -c "import torch; print(torch.cuda.is_available())"
+
+# ----------------------------------------------------------------------------
+# File Processing & Serialization
+# ----------------------------------------------------------------------------
+# pickle is built-in, no installation needed
+# difflib is built-in, no installation needed
+
+# ----------------------------------------------------------------------------
+# Utilities
+# ----------------------------------------------------------------------------
+python-dotenv==1.0.0            # Load environment variables from .env file
+requests==2.31.0                # HTTP library for API calls (if needed)
+
+# ----------------------------------------------------------------------------
+# Development Tools (Optional)
+# ----------------------------------------------------------------------------
+# Uncomment these for development:
+# ipython==8.18.1               # Enhanced interactive Python shell
+# jupyter==1.0.0                # Jupyter notebook support
+# pytest==7.4.3                 # Testing framework
+# pytest-cov==4.1.0             # Test coverage plugin
+# black==23.12.1                # Code formatter
+# flake8==6.1.0                 # Linting tool
+# pylint==3.0.3                 # Advanced linting
+
+# ----------------------------------------------------------------------------
+# Production Server (Optional)
+# ----------------------------------------------------------------------------
+# For production deployment, uncomment:
+# gunicorn==21.2.0              # WSGI HTTP Server for production
+# gevent==23.9.1                # Coroutine-based networking library
+
+# ============================================================================
+# VERSION COMPATIBILITY NOTES
+# ============================================================================
+# 
+# Python Version: 3.8, 3.9, 3.10, 3.11 (3.11 recommended)
+# 
+# This project has been tested with:
+# - Python 3.11.5
+# - pip 23.3.1
+# 
+# If you encounter version conflicts, you can install with:
+#   pip install -r requirements.txt --upgrade
+# 
+# To create a virtual environment (recommended):
+#   python -m venv venv
+#   source venv/bin/activate    # On macOS/Linux
+#   venv\Scripts\activate       # On Windows
+# 
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Package Descriptions
+# ----------------------------------------------------------------------------
+#
+# Flask: Web framework for building the REST API
+# flask-cors: Handles Cross-Origin Resource Sharing for React frontend
+# pandas: Data manipulation for CSV processing and movie dataset handling
+# numpy: Numerical operations and array processing
+# scikit-learn: Machine learning library for TF-IDF and cosine similarity
+# scipy: Scientific computing (used by scikit-learn)
+# torch: Deep learning framework with GPU support (optional)
+# python-dotenv: Environment variable management
+# requests: HTTP client for external API calls
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Installation Instructions
+# ----------------------------------------------------------------------------
+#
+# BASIC INSTALLATION (CPU only):
+# --------------------------------
+# pip install -r requirements.txt
+#
+#
+# WITH GPU SUPPORT (NVIDIA CUDA):
+# --------------------------------
+# 1. Install basic requirements:
+#    pip install -r requirements.txt
+#
+# 2. Install PyTorch with CUDA:
+#    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+#
+# 3. Verify GPU:
+#    python -c "import torch; print(f'CUDA Available: {torch.cuda.is_available()}')"
+#
+#
+# UPGRADING PACKAGES:
+# -------------------
+# pip install -r requirements.txt --upgrade
+#
+#
+# FREEZING CURRENT ENVIRONMENT:
+# -----------------------------
+# pip freeze > requirements-freeze.txt
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Troubleshooting
+# ----------------------------------------------------------------------------
+#
+# ERROR: "No matching distribution found"
+# SOLUTION: Update pip: python -m pip install --upgrade pip
+#
+# ERROR: "Microsoft Visual C++ 14.0 is required" (Windows)
+# SOLUTION: Install Visual Studio Build Tools
+#
+# ERROR: "Failed building wheel for scipy"
+# SOLUTION: Install system dependencies or use conda
+#
+# ERROR: CUDA version mismatch
+# SOLUTION: Match PyTorch CUDA version with system CUDA version
+#
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# Alternative: Conda Environment
+# ----------------------------------------------------------------------------
+#
+# If you prefer conda over pip:
+#
+# conda create -n movie-recommender python=3.11
+# conda activate movie-recommender
+# conda install flask pandas numpy scikit-learn
+# conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+# pip install flask-cors python-dotenv
+#
+# ============================================================================
